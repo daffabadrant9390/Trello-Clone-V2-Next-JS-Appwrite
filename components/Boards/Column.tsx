@@ -2,6 +2,8 @@ import { Draggable, Droppable } from 'react-beautiful-dnd';
 import TodoCard from './TodoCard';
 import { PlusCircleIcon } from '@heroicons/react/24/solid';
 import { DROPPABLE_TYPE } from '@/constants';
+import { useBoardStore } from '@/store/BoardStore';
+import { useMemo } from 'react';
 
 type ColumnOuterCardProps = {
   id: ColumnType;
@@ -18,6 +20,20 @@ const idToColumnText: {
 };
 
 const Column = ({ id, todos, idx }: ColumnOuterCardProps) => {
+  const [inputSearchString] = useBoardStore((state) => [
+    state.inputSearchString,
+  ]);
+
+  const finalColumnTodosLength = useMemo(() => {
+    if (!!inputSearchString) {
+      return (todos || []).filter((todoItem) =>
+        todoItem.title.toLowerCase().includes(inputSearchString.toLowerCase())
+      ).length;
+    } else {
+      return (todos || []).length;
+    }
+  }, [inputSearchString, JSON.stringify(todos)]);
+
   return (
     <Draggable draggableId={id} index={idx}>
       {(provided) => (
@@ -43,31 +59,43 @@ const Column = ({ id, todos, idx }: ColumnOuterCardProps) => {
                     </h2>
 
                     <span className="px-2 py-1 text-sm font-normal text-gray-500 bg-gray-200 rounded-md">
-                      {todos.length || 0}
+                      {finalColumnTodosLength}
                     </span>
                   </div>
 
                   {/* TODO Card */}
                   <div className="flex flex-col gap-3 md:gap-4">
                     <div className="w-full flex flex-col gap-2 md:gap-3">
-                      {todos.map((todoItemObj, idx) => (
-                        <Draggable
-                          index={idx}
-                          draggableId={todoItemObj.$id}
-                          key={todoItemObj.$id}
-                        >
-                          {(provided) => (
-                            <TodoCard
-                              todoItem={todoItemObj}
-                              index={idx}
-                              id={id}
-                              dragHandleProps={provided.dragHandleProps}
-                              draggableProps={provided.draggableProps}
-                              innerRef={provided.innerRef}
-                            />
-                          )}
-                        </Draggable>
-                      ))}
+                      {todos.map((todoItemObj, idx) => {
+                        // Handle if the search string is not part of the todo item title
+                        if (
+                          !!inputSearchString &&
+                          !todoItemObj.title
+                            .toLowerCase()
+                            .includes(inputSearchString.toLowerCase())
+                        ) {
+                          return;
+                        }
+
+                        return (
+                          <Draggable
+                            index={idx}
+                            draggableId={todoItemObj.$id}
+                            key={todoItemObj.$id}
+                          >
+                            {(provided) => (
+                              <TodoCard
+                                todoItem={todoItemObj}
+                                index={idx}
+                                id={id}
+                                dragHandleProps={provided.dragHandleProps}
+                                draggableProps={provided.draggableProps}
+                                innerRef={provided.innerRef}
+                              />
+                            )}
+                          </Draggable>
+                        );
+                      })}
 
                       {provided.placeholder}
                     </div>

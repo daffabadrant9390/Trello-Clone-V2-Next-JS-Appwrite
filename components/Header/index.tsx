@@ -4,8 +4,14 @@ import Image from 'next/image';
 import React from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import Avatar from 'react-avatar';
+import { useBoardStore } from '@/store/BoardStore';
 
 const Header = () => {
+  const [inputSearchString, setInputSearchString] = useBoardStore((state) => [
+    state.inputSearchString,
+    state.setInputSearchString,
+  ]);
+
   return (
     <header className="relative bg-gray-500/20">
       <div className="absolute top-0 left-0 w-full min-h-screen bg-gradient-to-br from-green-400 to-[#0055D1] rounded-md filter blur-3xl opacity-50 -z-50" />
@@ -29,15 +35,17 @@ const Header = () => {
               <input
                 type="text"
                 placeholder="Type something..."
+                value={inputSearchString}
+                onChange={(e) => setInputSearchString(e.target.value)}
                 className="w-full outline-none p-2 md:px-3 text-gray-700 text-[14px] md:text-[16px] lg:text-[18px]"
               />
             </div>
-            <button
+            {/* <button
               className="px-2 md:px-4 py-2 bg-blue-500/90 text-gray-100 rounded-md text-[14px] md:text-[16px] lg:text-[18px] font-medium hover:bg-blue-500 hover:text-white transition-all duration-200 "
               type="submit"
             >
               Search
-            </button>
+            </button> */}
           </form>
         </div>
       </div>

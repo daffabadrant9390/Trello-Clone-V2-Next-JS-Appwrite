@@ -1,3 +1,4 @@
+import { useBoardStore } from '@/store/BoardStore';
 import { XCircleIcon } from '@heroicons/react/24/solid';
 import {
   DraggableProvidedDragHandleProps,
@@ -23,6 +24,8 @@ const TodoCard = ({
 }: TodoCardProps) => {
   const { $id, status, title, image } = todoItem;
 
+  const [deleteTodoItem] = useBoardStore((state) => [state.deleteTodoItem]);
+
   return (
     <div
       {...dragHandleProps}
@@ -32,7 +35,16 @@ const TodoCard = ({
     >
       <div className="flex flex-row items-center justify-between p-5 gap-5">
         <p>{title || ''}</p>
-        <button className="text-red-500 hover:text-red-600 transition-all duration-200">
+        <button
+          onClick={() => {
+            deleteTodoItem({
+              todoItemIdx: index,
+              todoData: todoItem,
+              columnId: id,
+            });
+          }}
+          className="text-red-500 hover:text-red-600 transition-all duration-200"
+        >
           <XCircleIcon className="w-8 h-8" />
         </button>
       </div>

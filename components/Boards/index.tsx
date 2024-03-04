@@ -12,11 +12,13 @@ import Column from './Column';
 import { DROPPABLE_TYPE } from '@/constants';
 
 function Board() {
-  const [board, getBoardData, setBoardState] = useBoardStore((state) => [
-    state.board,
-    state.getBoardData,
-    state.setBoard,
-  ]);
+  const [board, getBoardData, setBoardState, updateTodoItemStatusInDB] =
+    useBoardStore((state) => [
+      state.board,
+      state.getBoardData,
+      state.setBoard,
+      state.updateTodoItemStatusInDB,
+    ]);
 
   useEffect(() => {
     getBoardData();
@@ -81,7 +83,7 @@ function Board() {
         return;
 
       if (sourceColObj.id === destinationColObj.id) {
-        // Handle Drag in the same column
+        //? Handle Drag in the same column
         const copySourceColTodos = sourceColObj.todos;
         const [draggedTodoItem] = copySourceColTodos.splice(source.index, 1);
         copySourceColTodos.splice(destination.index, 0, draggedTodoItem);
@@ -101,7 +103,7 @@ function Board() {
           columns: newBoardColumns,
         });
       } else {
-        // Handle Drag in the different column
+        //? Handle Drag in the different column
 
         // Get the todos from source column and destination column (since they are different)
         const copySourceColTodos = sourceColObj.todos;
@@ -135,6 +137,9 @@ function Board() {
         const newBoardColums = new Map(board.columns);
         newBoardColums.set(sourceColObj.id, newSourceCol);
         newBoardColums.set(destinationColObj.id, newDestinationCol);
+
+        // Update the board state in database
+        updateTodoItemStatusInDB(draggedTodoItem, destinationColObj.id);
 
         setBoardState({
           ...board,
