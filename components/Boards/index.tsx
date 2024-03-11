@@ -10,8 +10,18 @@ import {
 } from 'react-beautiful-dnd';
 import Column from './Column';
 import { DROPPABLE_TYPE } from '@/constants';
+import { PopupRemoveTodoCardState } from '@/lib/types';
 
-function Board() {
+type BoardProps = {
+  onUpdatePopupRemoveTodoItemState: ({
+    isOpen,
+    columnId,
+    todoData,
+    todoItemIdx,
+  }: PopupRemoveTodoCardState) => void;
+};
+
+function Board({ onUpdatePopupRemoveTodoItemState }: BoardProps) {
   const [board, getBoardData, setBoardState, updateTodoItemStatusInDB] =
     useBoardStore((state) => [
       state.board,
@@ -66,9 +76,6 @@ function Board() {
         id: destinationColumn[0],
         todos: destinationColumn[1].todos,
       };
-
-      console.log('sourceColObj: ', sourceColObj);
-      console.log('destinationColObj: ', destinationColObj);
 
       /**
        * - If there is no destination idx or source idx, return
@@ -160,11 +167,19 @@ function Board() {
           <div
             {...provided.droppableProps}
             ref={provided.innerRef}
-            className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 max-container padding-container"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-container padding-container"
           >
             {/* {provided.placeholder} */}
             {Array.from(board.columns.entries()).map(([id, column], index) => (
-              <Column key={id} idx={index} id={id} todos={column.todos} />
+              <Column
+                key={id}
+                idx={index}
+                id={id}
+                todos={column.todos}
+                onUpdatePopupRemoveTodoItemState={
+                  onUpdatePopupRemoveTodoItemState
+                }
+              />
             ))}
           </div>
         )}

@@ -1,5 +1,7 @@
 import { getImageUrl } from '@/lib/services/getImageUrl';
+import { PopupRemoveTodoCardState } from '@/lib/types';
 import { useBoardStore } from '@/store/BoardStore';
+import { useModalStore } from '@/store/ModalStore';
 import { XCircleIcon } from '@heroicons/react/24/solid';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
@@ -15,6 +17,12 @@ type TodoCardProps = {
   innerRef: (element: HTMLElement | null) => void;
   draggableProps: DraggableProvidedDraggableProps;
   dragHandleProps: DraggableProvidedDragHandleProps | null | undefined;
+  onUpdatePopupRemoveTodoItemState: ({
+    isOpen,
+    columnId,
+    todoData,
+    todoItemIdx,
+  }: PopupRemoveTodoCardState) => void;
 };
 
 const TodoCard = ({
@@ -24,6 +32,7 @@ const TodoCard = ({
   innerRef,
   dragHandleProps,
   draggableProps,
+  onUpdatePopupRemoveTodoItemState,
 }: TodoCardProps) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [deleteTodoItem] = useBoardStore((state) => [state.deleteTodoItem]);
@@ -56,11 +65,19 @@ const TodoCard = ({
       <div className="flex flex-row items-center justify-between p-5 gap-5">
         <p>{title || ''}</p>
         <button
+          // onClick={() => {
+          //   deleteTodoItem({
+          //     todoItemIdx: index,
+          //     todoData: todoItem,
+          //     columnId: id,
+          //   });
+          // }}
           onClick={() => {
-            deleteTodoItem({
-              todoItemIdx: index,
+            onUpdatePopupRemoveTodoItemState({
+              isOpen: true,
               todoData: todoItem,
               columnId: id,
+              todoItemIdx: index,
             });
           }}
           className="text-red-500 hover:text-red-600 transition-all duration-200"
@@ -71,13 +88,12 @@ const TodoCard = ({
 
       {/* Add Image */}
       {!!imageUrl && (
-        <div className="w-full h-full relative rounded-b-md flex-shrink-0">
+        <div className="w-full h-[200px] md:h-[240px] lg:h-[280px] relative rounded-b-md flex-shrink-0">
           <Image
             src={imageUrl}
             alt="Task Image"
-            width={400}
-            height={200}
-            className="w-full object-cover object-center rounded-b-md"
+            fill
+            className="object-cover object-center rounded-b-md"
           />
         </div>
       )}

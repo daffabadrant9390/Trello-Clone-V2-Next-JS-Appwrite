@@ -5,11 +5,18 @@ import { DROPPABLE_TYPE } from '@/constants';
 import { useBoardStore } from '@/store/BoardStore';
 import { useMemo } from 'react';
 import { useModalStore } from '@/store/ModalStore';
+import { PopupRemoveTodoCardState } from '@/lib/types';
 
 type ColumnOuterCardProps = {
   id: ColumnType;
   todos: Todo[];
   idx: number;
+  onUpdatePopupRemoveTodoItemState: ({
+    isOpen,
+    columnId,
+    todoData,
+    todoItemIdx,
+  }: PopupRemoveTodoCardState) => void;
 };
 
 const idToColumnText: {
@@ -20,7 +27,12 @@ const idToColumnText: {
   done: 'Done',
 };
 
-const Column = ({ id, todos, idx }: ColumnOuterCardProps) => {
+const Column = ({
+  id,
+  todos,
+  idx,
+  onUpdatePopupRemoveTodoItemState,
+}: ColumnOuterCardProps) => {
   const [inputSearchString, setNewTaskType, setNewTaskInputText] =
     useBoardStore((state) => [
       state.inputSearchString,
@@ -103,6 +115,9 @@ const Column = ({ id, todos, idx }: ColumnOuterCardProps) => {
                                 dragHandleProps={provided.dragHandleProps}
                                 draggableProps={provided.draggableProps}
                                 innerRef={provided.innerRef}
+                                onUpdatePopupRemoveTodoItemState={
+                                  onUpdatePopupRemoveTodoItemState
+                                }
                               />
                             )}
                           </Draggable>

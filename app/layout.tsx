@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Modal from '@/components/Modal';
+import PopupRemoveTodoCard from '@/components/Popup/PopupRemoveTodoCard';
 
 export const metadata: Metadata = {
   title: 'Trello 2.0 AI Clone',
@@ -17,6 +18,7 @@ export default function RootLayout({
       <body>
         {children}
         <Modal />
+        {/* <PopupRemoveTodoCard /> */}
       </body>
     </html>
   );
