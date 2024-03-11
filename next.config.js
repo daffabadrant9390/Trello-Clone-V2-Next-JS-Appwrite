@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['links.papareact.com'],
+    domains: ['cloud.appwrite.io', 'links.papareact.com'],
   },
   // INFO: Currently set this to be false due to react-beautiful-dnd limitation
   reactStrictMode: false,

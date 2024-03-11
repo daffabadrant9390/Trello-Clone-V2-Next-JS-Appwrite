@@ -4,6 +4,7 @@ import { PlusCircleIcon } from '@heroicons/react/24/solid';
 import { DROPPABLE_TYPE } from '@/constants';
 import { useBoardStore } from '@/store/BoardStore';
 import { useMemo } from 'react';
+import { useModalStore } from '@/store/ModalStore';
 
 type ColumnOuterCardProps = {
   id: ColumnType;
@@ -20,9 +21,14 @@ const idToColumnText: {
 };
 
 const Column = ({ id, todos, idx }: ColumnOuterCardProps) => {
-  const [inputSearchString] = useBoardStore((state) => [
-    state.inputSearchString,
-  ]);
+  const [inputSearchString, setNewTaskType, setNewTaskInputText] =
+    useBoardStore((state) => [
+      state.inputSearchString,
+      state.setNewTaskType,
+      state.setNewTaskInputText,
+    ]);
+
+  const openModal = useModalStore((state) => state.openModal);
 
   const finalColumnTodosLength = useMemo(() => {
     if (!!inputSearchString) {
@@ -33,6 +39,12 @@ const Column = ({ id, todos, idx }: ColumnOuterCardProps) => {
       return (todos || []).length;
     }
   }, [inputSearchString, JSON.stringify(todos)]);
+
+  const handleOpenModal = () => {
+    setNewTaskInputText('');
+    setNewTaskType(id);
+    openModal();
+  };
 
   return (
     <Draggable draggableId={id} index={idx}>
@@ -103,7 +115,10 @@ const Column = ({ id, todos, idx }: ColumnOuterCardProps) => {
 
                   {/* Add TODO Button */}
                   <div className="w-full flex flex-row items-center justify-end">
-                    <button className="text-green-500 hover:text-green-600 transition-all duration-200">
+                    <button
+                      onClick={handleOpenModal}
+                      className="text-green-500 hover:text-green-600 transition-all duration-200"
+                    >
                       <PlusCircleIcon className="h-10 w-10" />
                     </button>
                   </div>

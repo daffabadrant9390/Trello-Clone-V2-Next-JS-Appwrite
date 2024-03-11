@@ -1,5 +1,8 @@
+import { getImageUrl } from '@/lib/services/getImageUrl';
 import { useBoardStore } from '@/store/BoardStore';
 import { XCircleIcon } from '@heroicons/react/24/solid';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import {
   DraggableProvidedDragHandleProps,
   DraggableProvidedDraggableProps,
@@ -22,9 +25,26 @@ const TodoCard = ({
   dragHandleProps,
   draggableProps,
 }: TodoCardProps) => {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [deleteTodoItem] = useBoardStore((state) => [state.deleteTodoItem]);
+
   const { $id, status, title, image } = todoItem;
 
-  const [deleteTodoItem] = useBoardStore((state) => [state.deleteTodoItem]);
+  useEffect(() => {
+    if (!!todoItem.image) {
+      const fetchImageUrl = async () => {
+        const url = await getImageUrl(todoItem.image || ({} as Image));
+        if (!!url) {
+          setImageUrl(url.toString());
+        }
+      };
+
+      fetchImageUrl();
+    }
+  }, [todoItem]);
+
+  console.log('todoItem.image: ', todoItem.image);
+  console.log('imageUrl: ', imageUrl);
 
   return (
     <div
@@ -48,6 +68,19 @@ const TodoCard = ({
           <XCircleIcon className="w-8 h-8" />
         </button>
       </div>
+
+      {/* Add Image */}
+      {!!imageUrl && (
+        <div className="w-full h-full relative rounded-b-md flex-shrink-0">
+          <Image
+            src={imageUrl}
+            alt="Task Image"
+            width={400}
+            height={200}
+            className="w-full object-cover object-center rounded-b-md"
+          />
+        </div>
+      )}
     </div>
   );
 };
