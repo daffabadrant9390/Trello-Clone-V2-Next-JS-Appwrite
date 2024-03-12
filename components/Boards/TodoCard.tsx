@@ -1,8 +1,8 @@
 import { getImageUrl } from '@/lib/services/getImageUrl';
-import { PopupRemoveTodoCardState } from '@/lib/types';
+import { PopupEditTodoCardState, PopupRemoveTodoCardState } from '@/lib/types';
 import { useBoardStore } from '@/store/BoardStore';
 import { useModalStore } from '@/store/ModalStore';
-import { XCircleIcon } from '@heroicons/react/24/solid';
+import { XCircleIcon, PencilIcon } from '@heroicons/react/24/solid';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import {
@@ -23,6 +23,15 @@ type TodoCardProps = {
     todoData,
     todoItemIdx,
   }: PopupRemoveTodoCardState) => void;
+  onUpdatePopupEditTodoItemState: ({
+    isOpen,
+    todoId,
+    columnId,
+    todoTitle,
+    todoImage,
+    todoImageUrl,
+    todoCreatedAt,
+  }: PopupEditTodoCardState) => void;
 };
 
 const TodoCard = ({
@@ -33,11 +42,24 @@ const TodoCard = ({
   dragHandleProps,
   draggableProps,
   onUpdatePopupRemoveTodoItemState,
+  onUpdatePopupEditTodoItemState,
 }: TodoCardProps) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [deleteTodoItem] = useBoardStore((state) => [state.deleteTodoItem]);
+  const [deleteTodoItem, setNewTaskType, setNewTaskImage, setNewTaskInputText] =
+    useBoardStore((state) => [
+      state.deleteTodoItem,
+      state.setNewTaskType,
+      state.setNewTaskImage,
+      state.setNewTaskInputText,
+    ]);
 
-  const { $id, status, title, image } = todoItem;
+  const {
+    $id: todoItemId,
+    status,
+    title,
+    image: todoItemImage,
+    $createdAt: todoItemCreatedAt,
+  } = todoItem;
 
   useEffect(() => {
     if (!!todoItem.image) {
@@ -64,26 +86,41 @@ const TodoCard = ({
     >
       <div className="flex flex-row items-center justify-between p-5 gap-5">
         <p>{title || ''}</p>
-        <button
-          // onClick={() => {
-          //   deleteTodoItem({
-          //     todoItemIdx: index,
-          //     todoData: todoItem,
-          //     columnId: id,
-          //   });
-          // }}
-          onClick={() => {
-            onUpdatePopupRemoveTodoItemState({
-              isOpen: true,
-              todoData: todoItem,
-              columnId: id,
-              todoItemIdx: index,
-            });
-          }}
-          className="text-red-500 hover:text-red-600 transition-all duration-200"
-        >
-          <XCircleIcon className="w-8 h-8" />
-        </button>
+        <div className="flex flex-row items-center gap-2">
+          <button
+            onClick={() => {
+              setNewTaskType(id);
+              setNewTaskInputText(title || '');
+              setNewTaskImage(null);
+
+              onUpdatePopupEditTodoItemState({
+                isOpen: true,
+                todoId: todoItemId,
+                todoTitle: title || '',
+                columnId: id,
+                todoImage: todoItemImage || ({} as Image),
+                todoImageUrl: imageUrl || '',
+                todoCreatedAt: todoItemCreatedAt || '',
+              });
+            }}
+            className="bg-gray-200 hover:bg-gray-400 text-gray-600 hover:text-gray-800 transition-all duration-200 flex flex-row items-center justify-center w-7 h-7 rounded-full"
+          >
+            <PencilIcon className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => {
+              onUpdatePopupRemoveTodoItemState({
+                isOpen: true,
+                todoData: todoItem,
+                columnId: id,
+                todoItemIdx: index,
+              });
+            }}
+            className="text-red-500 hover:text-red-600 transition-all duration-200"
+          >
+            <XCircleIcon className="w-8 h-8" />
+          </button>
+        </div>
       </div>
 
       {/* Add Image */}

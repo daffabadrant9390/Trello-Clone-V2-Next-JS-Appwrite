@@ -5,7 +5,7 @@ import { DROPPABLE_TYPE } from '@/constants';
 import { useBoardStore } from '@/store/BoardStore';
 import { useMemo } from 'react';
 import { useModalStore } from '@/store/ModalStore';
-import { PopupRemoveTodoCardState } from '@/lib/types';
+import { PopupEditTodoCardState, PopupRemoveTodoCardState } from '@/lib/types';
 
 type ColumnOuterCardProps = {
   id: ColumnType;
@@ -17,6 +17,15 @@ type ColumnOuterCardProps = {
     todoData,
     todoItemIdx,
   }: PopupRemoveTodoCardState) => void;
+  onUpdatePopupEditTodoItemState: ({
+    isOpen,
+    todoId,
+    columnId,
+    todoTitle,
+    todoImage,
+    todoImageUrl,
+    todoCreatedAt,
+  }: PopupEditTodoCardState) => void;
 };
 
 const idToColumnText: {
@@ -32,6 +41,7 @@ const Column = ({
   todos,
   idx,
   onUpdatePopupRemoveTodoItemState,
+  onUpdatePopupEditTodoItemState,
 }: ColumnOuterCardProps) => {
   const [inputSearchString, setNewTaskType, setNewTaskInputText] =
     useBoardStore((state) => [
@@ -117,6 +127,9 @@ const Column = ({
                                 innerRef={provided.innerRef}
                                 onUpdatePopupRemoveTodoItemState={
                                   onUpdatePopupRemoveTodoItemState
+                                }
+                                onUpdatePopupEditTodoItemState={
+                                  onUpdatePopupEditTodoItemState
                                 }
                               />
                             )}

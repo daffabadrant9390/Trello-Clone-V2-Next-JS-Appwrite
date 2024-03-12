@@ -10,7 +10,7 @@ import {
 } from 'react-beautiful-dnd';
 import Column from './Column';
 import { DROPPABLE_TYPE } from '@/constants';
-import { PopupRemoveTodoCardState } from '@/lib/types';
+import { PopupEditTodoCardState, PopupRemoveTodoCardState } from '@/lib/types';
 
 type BoardProps = {
   onUpdatePopupRemoveTodoItemState: ({
@@ -19,9 +19,21 @@ type BoardProps = {
     todoData,
     todoItemIdx,
   }: PopupRemoveTodoCardState) => void;
+  onUpdatePopupEditTodoItemState: ({
+    isOpen,
+    todoId,
+    columnId,
+    todoTitle,
+    todoImage,
+    todoImageUrl,
+    todoCreatedAt,
+  }: PopupEditTodoCardState) => void;
 };
 
-function Board({ onUpdatePopupRemoveTodoItemState }: BoardProps) {
+function Board({
+  onUpdatePopupRemoveTodoItemState,
+  onUpdatePopupEditTodoItemState,
+}: BoardProps) {
   const [board, getBoardData, setBoardState, updateTodoItemStatusInDB] =
     useBoardStore((state) => [
       state.board,
@@ -179,6 +191,7 @@ function Board({ onUpdatePopupRemoveTodoItemState }: BoardProps) {
                 onUpdatePopupRemoveTodoItemState={
                   onUpdatePopupRemoveTodoItemState
                 }
+                onUpdatePopupEditTodoItemState={onUpdatePopupEditTodoItemState}
               />
             ))}
           </div>

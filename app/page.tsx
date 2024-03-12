@@ -2,10 +2,14 @@
 
 import Board from '@/components/Boards';
 import Header from '@/components/Header';
-import PopupRemoveTodoCard from '@/components/Popup/PopupRemoveTodoCard';
+import PopupRemoveTodoCard from '@/components/Modal/PopupRemoveTodoCard';
+import PopupUpdateTodoCard from '@/components/Modal/PopupUpdateTodoCard';
 import StateInformation from '@/components/StateInformation';
-import { POPUP_REMOVE_TODO_CARD_ITEM_DEFAULT_STATE } from '@/constants';
-import { PopupRemoveTodoCardState } from '@/lib/types';
+import {
+  POPUP_EDIT_TODO_CARD_ITEM_DEFAULT_STATE,
+  POPUP_REMOVE_TODO_CARD_ITEM_DEFAULT_STATE,
+} from '@/constants';
+import { PopupEditTodoCardState, PopupRemoveTodoCardState } from '@/lib/types';
 import { useCallback, useState } from 'react';
 
 export default function Home() {
@@ -13,6 +17,8 @@ export default function Home() {
     useState<PopupRemoveTodoCardState>(
       POPUP_REMOVE_TODO_CARD_ITEM_DEFAULT_STATE
     );
+  const [popupEditTodoItemState, setPopupEditTodoItemState] =
+    useState<PopupEditTodoCardState>(POPUP_EDIT_TODO_CARD_ITEM_DEFAULT_STATE);
 
   const handleOpenPopupRemoveTodoItem = useCallback(
     ({ isOpen, columnId, todoData, todoItemIdx }: PopupRemoveTodoCardState) => {
@@ -30,6 +36,33 @@ export default function Home() {
     setPopupRemoveTodoItemState(POPUP_REMOVE_TODO_CARD_ITEM_DEFAULT_STATE);
   }, []);
 
+  const handleOpenPopupEditTodoItem = useCallback(
+    ({
+      isOpen,
+      todoId,
+      columnId,
+      todoTitle,
+      todoImage,
+      todoImageUrl,
+      todoCreatedAt,
+    }: PopupEditTodoCardState) => {
+      setPopupEditTodoItemState({
+        isOpen,
+        todoId,
+        columnId,
+        todoTitle,
+        todoImage,
+        todoImageUrl,
+        todoCreatedAt,
+      });
+    },
+    []
+  );
+
+  const handleClosePopupEditTodoItem = useCallback(() => {
+    setPopupEditTodoItemState(POPUP_EDIT_TODO_CARD_ITEM_DEFAULT_STATE);
+  }, []);
+
   return (
     <>
       <Header />
@@ -37,6 +70,7 @@ export default function Home() {
         <StateInformation />
         <Board
           onUpdatePopupRemoveTodoItemState={handleOpenPopupRemoveTodoItem}
+          onUpdatePopupEditTodoItemState={handleOpenPopupEditTodoItem}
         />
         <PopupRemoveTodoCard
           isOpen={!!popupRemoveTodoItemState.isOpen}
@@ -44,6 +78,16 @@ export default function Home() {
           columnId={popupRemoveTodoItemState.columnId || 'todo'}
           todoItemIdx={popupRemoveTodoItemState.todoItemIdx || 0}
           onClosePopupRemoveTodoItem={handleClosePopupRemoveTodoItem}
+        />
+        <PopupUpdateTodoCard
+          isOpen={!!popupEditTodoItemState.isOpen}
+          todoItemId={popupEditTodoItemState.todoId || ''}
+          columnId={popupEditTodoItemState.columnId || 'todo'}
+          todoTitle={popupEditTodoItemState.todoTitle || ''}
+          todoImage={popupEditTodoItemState.todoImage}
+          todoImageUrl={popupEditTodoItemState.todoImageUrl}
+          onClosePopupEditTodoItem={handleClosePopupEditTodoItem}
+          todoCreatedAt={popupEditTodoItemState.todoCreatedAt || ''}
         />
       </main>
     </>

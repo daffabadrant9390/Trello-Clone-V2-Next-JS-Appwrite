@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Modal from '@/components/Modal';
-import PopupRemoveTodoCard from '@/components/Popup/PopupRemoveTodoCard';
+import PopupRemoveTodoCard from '@/components/Modal/PopupRemoveTodoCard';
 
 export const metadata: Metadata = {
   title: 'Trello 2.0 AI Clone',

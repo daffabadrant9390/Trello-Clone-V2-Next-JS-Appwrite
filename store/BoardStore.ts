@@ -34,6 +34,19 @@ interface BoardState {
     columnId: ColumnType;
     todoItemFileImage?: File | null;
   }) => void;
+  updateTodoItem: ({
+    todoItemId,
+    todoItemText,
+    columnId,
+    todoItemFileImage,
+    todoCreatedAt,
+  }: {
+    todoItemId: string;
+    todoItemText: string;
+    columnId: ColumnType;
+    todoItemFileImage?: File | null;
+    todoCreatedAt: string;
+  }) => void;
 }
 
 export const useBoardStore = create<BoardState>((set, get) => ({
@@ -145,5 +158,105 @@ export const useBoardStore = create<BoardState>((set, get) => ({
         },
       };
     });
+  },
+  updateTodoItem: async ({
+    todoItemText,
+    columnId,
+    todoItemFileImage,
+    todoItemId,
+    todoCreatedAt,
+  }) => {
+    console.log('todoItemId: ', todoItemId);
+
+    let fileImage: Image | undefined;
+
+    if (!!todoItemFileImage) {
+      const uploadedFileImage = await uploadImage(todoItemFileImage);
+      if (!!uploadedFileImage) {
+        fileImage = {
+          bucketId: uploadedFileImage.bucketId,
+          fileId: uploadedFileImage.$id,
+        };
+      }
+    }
+
+    await databases.updateDocument(
+      process.env.NEXT_PUBLIC_DATABASE_ID!,
+      process.env.NEXT_PUBLIC_TODOS_COLLECTION_ID!,
+      todoItemId,
+      {
+        title: todoItemText,
+        status: columnId,
+        // Only add image if exist
+        ...(!!fileImage ? { image: JSON.stringify(fileImage) } : {}),
+      }
+    );
+
+    // Update state from FE side
+    set({ newTaskInputText: '', newTaskImage: null, newTaskType: undefined });
+    set((state) => {
+      const newColumnMap = new Map(state.board.columns);
+
+      const updatedTodoItem: Todo = {
+        $id: todoItemId,
+        $createdAt: todoCreatedAt,
+        title: todoItemText,
+        status: columnId,
+        ...(!!fileImage ? { image: fileImage } : {}),
+      };
+
+      const selectedColumn = newColumnMap.get(columnId);
+      if (!!selectedColumn) {
+        const foundTodoIdx = selectedColumn.todos.findIndex(
+          (foundTodoItem) => foundTodoItem.$id === todoItemId
+        );
+        newColumnMap
+          .get(columnId)
+          ?.todos.splice(foundTodoIdx, 1, updatedTodoItem);
+      } else {
+        newColumnMap.set(columnId, {
+          id: columnId,
+          todos: [updatedTodoItem],
+        });
+      }
+
+      return {
+        board: {
+          columns: newColumnMap,
+        },
+      };
+    });
+
+    // set((state) => {
+    //   const newColumnMap = new Map(state.board.columns);
+
+    //   const newTodoItem: Todo = {
+    //     $id: ID.unique(), //TODO: CHECK THE FUNCTIONALITY
+    //     $createdAt: new Date().toISOString(),
+    //     title: todoItemText,
+    //     status: columnId,
+    //     // Only add image if exist
+    //     ...(!!fileImage ? { image: fileImage } : {}),
+    //   };
+
+    //   const selectedColumn = newColumnMap.get(columnId);
+
+    //   // If the selected column is not exist, then create new one
+    //   if (!selectedColumn) {
+    //     newColumnMap.set(columnId, {
+    //       id: columnId,
+    //       todos: [newTodoItem],
+    //     });
+    //   } else {
+    //     // If the selected column exist, push the todos array
+    //     newColumnMap.get(columnId)?.todos.push(newTodoItem);
+    //   }
+
+    //   return {
+    //     board: {
+    //       columns: newColumnMap,
+    //     },
+    //   };
+    // });
   },
 }));
