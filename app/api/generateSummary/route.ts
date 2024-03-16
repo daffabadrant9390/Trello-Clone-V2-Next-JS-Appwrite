@@ -3,7 +3,6 @@ import openai from '@/openai';
 
 export async function POST(request: Request) {
   const { todos } = await request.json();
-  console.log('todos-post: ', todos);
 
   // Communicate with openAI GPT
   const response = await openai.chat.completions.create({
@@ -27,8 +26,6 @@ export async function POST(request: Request) {
   });
 
   const { choices } = response || {};
-  console.log('choices data is : ', choices);
-  console.log(choices[0].message);
 
   return NextResponse.json(choices[0].message);
 }

@@ -46,14 +46,8 @@ function Board({
     getBoardData();
   }, [getBoardData]);
 
-  console.log('final board data: ', board);
-
   const handleOnDragEnd = (result: DropResult) => {
     const { source, destination, type } = result || {};
-
-    console.log('type drag: ', type);
-    console.log('source drag: ', source);
-    console.log('destination drag: ', destination);
 
     if (!destination) return;
 

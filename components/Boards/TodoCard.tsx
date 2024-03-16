@@ -62,9 +62,9 @@ const TodoCard = ({
   } = todoItem;
 
   useEffect(() => {
-    if (!!todoItem.image) {
+    if (!!todoItemImage) {
       const fetchImageUrl = async () => {
-        const url = await getImageUrl(todoItem.image || ({} as Image));
+        const url = await getImageUrl(todoItemImage || ({} as Image));
         if (!!url) {
           setImageUrl(url.toString());
         }
@@ -72,10 +72,10 @@ const TodoCard = ({
 
       fetchImageUrl();
     }
-  }, [todoItem]);
 
-  console.log('todoItem.image: ', todoItem.image);
-  console.log('imageUrl: ', imageUrl);
+    //TODO: Quick fix for current bug (imageUrl always filled with deleted image, but the todoItemImage is null)
+    if (!todoItemImage && !!imageUrl) setImageUrl(null);
+  }, [todoItemImage, imageUrl]);
 
   return (
     <div
@@ -131,6 +131,8 @@ const TodoCard = ({
             alt="Task Image"
             fill
             className="object-cover object-center rounded-b-md"
+            sizes="50"
+            priority
           />
         </div>
       )}

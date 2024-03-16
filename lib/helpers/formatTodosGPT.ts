@@ -2,7 +2,6 @@ export const formatTodosGPT = (board: Board) => {
   const todos = Array.from(board.columns.entries());
 
   const flatArray = todos.reduce((map, [key, value]) => {
-    console.log('map: ', map);
     map[key] = value.todos;
     return map;
   }, {} as { [key in ColumnType]: Todo[] });
