@@ -1,7 +1,7 @@
 'use client';
 
 import { useBoardStore } from '@/store/BoardStore';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   DragDropContext,
   Droppable,
@@ -11,6 +11,7 @@ import {
 import Column from './Column';
 import { DROPPABLE_TYPE } from '@/constants';
 import { PopupEditTodoCardState, PopupRemoveTodoCardState } from '@/lib/types';
+import SkeletonBoardLoading from '../LoadingIndicator/SkeletonBoardLoading';
 
 type BoardProps = {
   onUpdatePopupRemoveTodoItemState: ({
@@ -41,9 +42,17 @@ function Board({
       state.setBoard,
       state.updateTodoItemStatusInDB,
     ]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    getBoardData();
+    setIsLoading(true);
+
+    const getBoardDataResponse = async () => {
+      await getBoardData();
+      setIsLoading(false);
+    };
+
+    getBoardDataResponse();
   }, [getBoardData]);
 
   const handleOnDragEnd = (result: DropResult) => {
@@ -163,35 +172,42 @@ function Board({
   };
 
   return (
-    <DragDropContext onDragEnd={handleOnDragEnd}>
-      <Droppable
-        droppableId="board"
-        direction="horizontal"
-        type={DROPPABLE_TYPE.COLUMN}
-      >
-        {(provided) => (
-          <div
-            {...provided.droppableProps}
-            ref={provided.innerRef}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-container padding-container"
-          >
-            {/* {provided.placeholder} */}
-            {Array.from(board.columns.entries()).map(([id, column], index) => (
-              <Column
-                key={id}
-                idx={index}
-                id={id}
-                todos={column.todos}
-                onUpdatePopupRemoveTodoItemState={
-                  onUpdatePopupRemoveTodoItemState
-                }
-                onUpdatePopupEditTodoItemState={onUpdatePopupEditTodoItemState}
-              />
-            ))}
-          </div>
-        )}
-      </Droppable>
-    </DragDropContext>
+    <>
+      {!!isLoading && <SkeletonBoardLoading />}
+      <DragDropContext onDragEnd={handleOnDragEnd}>
+        <Droppable
+          droppableId="board"
+          direction="horizontal"
+          type={DROPPABLE_TYPE.COLUMN}
+        >
+          {(provided) => (
+            <div
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-container padding-container"
+            >
+              {/* {provided.placeholder} */}
+              {Array.from(board.columns.entries()).map(
+                ([id, column], index) => (
+                  <Column
+                    key={id}
+                    idx={index}
+                    id={id}
+                    todos={column.todos}
+                    onUpdatePopupRemoveTodoItemState={
+                      onUpdatePopupRemoveTodoItemState
+                    }
+                    onUpdatePopupEditTodoItemState={
+                      onUpdatePopupEditTodoItemState
+                    }
+                  />
+                )
+              )}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
+    </>
   );
 }
 
