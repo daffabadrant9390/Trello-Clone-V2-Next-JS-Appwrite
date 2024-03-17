@@ -26,6 +26,7 @@ const PopupRemoveTodoCard = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const handleDeleteTodoItem = async () => {
+    onClosePopupRemoveTodoItem();
     setIsLoading(true);
 
     await deleteTodoItem({
@@ -35,7 +36,6 @@ const PopupRemoveTodoCard = ({
     });
 
     setIsLoading(false);
-    onClosePopupRemoveTodoItem();
   };
 
   return (

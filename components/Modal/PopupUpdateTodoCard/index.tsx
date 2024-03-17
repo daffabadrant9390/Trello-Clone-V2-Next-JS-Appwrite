@@ -88,6 +88,8 @@ const PopupUpdateTodoCard = ({
       columnId: newTaskType,
       todoItemFileImage: newTaskImage || undefined,
       todoCreatedAt,
+      currentTodoColumnId: columnId,
+      currentTodoImage: currentTodoImage || null,
     });
 
     setNewTaskInputText('');

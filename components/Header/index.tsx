@@ -14,7 +14,7 @@ const Header = () => {
 
   return (
     <header className="relative bg-gray-500/20">
-      <div className="absolute top-0 left-0 w-full min-h-screen bg-gradient-to-br from-green-400 to-[#0055D1] rounded-md filter blur-3xl opacity-50 -z-50" />
+      <div className="fixed top-0 left-0 bottom-0 w-full min-h-screen bg-gradient-to-br from-green-400 to-[#0055D1] rounded-md filter blur-3xl opacity-50 -z-50" />
 
       <div className="max-container padding-container py-5 w-full flex flex-col md:flex-row items-center md:justify-between rounded-2xl gap-10">
         {/* LOGO */}

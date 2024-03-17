@@ -46,6 +46,8 @@ interface BoardState {
     columnId: ColumnType;
     todoItemFileImage?: File | null;
     todoCreatedAt: string;
+    currentTodoColumnId: ColumnType;
+    currentTodoImage?: Image | null;
   }) => void;
 }
 
@@ -165,6 +167,8 @@ export const useBoardStore = create<BoardState>((set, get) => ({
     todoItemFileImage,
     todoItemId,
     todoCreatedAt,
+    currentTodoColumnId,
+    currentTodoImage,
   }) => {
     let fileImage: Image | undefined;
 
@@ -188,6 +192,8 @@ export const useBoardStore = create<BoardState>((set, get) => ({
         // Only add image if exist
         ...(!!fileImage
           ? { image: JSON.stringify(fileImage) }
+          : !!currentTodoImage
+          ? { image: JSON.stringify(currentTodoImage) }
           : { image: null }),
       }
     );
@@ -197,24 +203,62 @@ export const useBoardStore = create<BoardState>((set, get) => ({
     set((state) => {
       const newColumnMap = new Map(state.board.columns);
 
+      const finalImageData = !!fileImage
+        ? fileImage
+        : !!currentTodoImage
+        ? currentTodoImage
+        : undefined;
+
       const updatedTodoItem: Todo = {
         $id: todoItemId,
         $createdAt: todoCreatedAt,
         title: todoItemText,
         status: columnId,
-        ...(!!fileImage ? { image: fileImage } : { image: undefined }),
+        image: finalImageData,
       };
 
-      if (!fileImage) delete updatedTodoItem?.image;
+      const selectedColumnDestination = newColumnMap.get(columnId);
+      const selectedColumnSource = newColumnMap.get(currentTodoColumnId);
 
-      const selectedColumn = newColumnMap.get(columnId);
-      if (!!selectedColumn) {
-        const foundTodoIdx = selectedColumn.todos.findIndex(
-          (foundTodoItem) => foundTodoItem.$id === todoItemId
-        );
-        newColumnMap
-          .get(columnId)
-          ?.todos.splice(foundTodoIdx, 1, updatedTodoItem);
+      if (!!selectedColumnSource && !!selectedColumnDestination) {
+        // Handle if the source and destination column is same
+        if (selectedColumnSource.id === selectedColumnDestination.id) {
+          const foundTodoIdx = selectedColumnDestination.todos.findIndex(
+            (todoItem) => todoItem.$id === todoItemId
+          );
+          if (foundTodoIdx >= 0) {
+            newColumnMap
+              .get(columnId)
+              ?.todos.splice(foundTodoIdx, 1, updatedTodoItem);
+          } else {
+            newColumnMap.get(columnId)?.todos.push(updatedTodoItem);
+          }
+        } else {
+          // Handle if the source and destination column is different
+          const foundTodoIdxDestinationCol =
+            selectedColumnDestination.todos.findIndex(
+              (todoItem) => todoItem.$id === todoItemId
+            );
+          const foundTodoIdxSourceCol = selectedColumnSource.todos.findIndex(
+            (todoItem) => todoItem.$id === todoItemId
+          );
+
+          // Add the updated todo item into the new destination column
+          if (foundTodoIdxDestinationCol >= 0) {
+            newColumnMap
+              .get(columnId)
+              ?.todos.splice(foundTodoIdxDestinationCol, 1, updatedTodoItem);
+          } else {
+            newColumnMap.get(columnId)?.todos.push(updatedTodoItem);
+          }
+
+          // Remove the current todo item in source column
+          if (foundTodoIdxSourceCol >= 0) {
+            newColumnMap
+              .get(currentTodoColumnId)
+              ?.todos.splice(foundTodoIdxSourceCol, 1);
+          }
+        }
       } else {
         newColumnMap.set(columnId, {
           id: columnId,

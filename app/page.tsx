@@ -66,7 +66,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      <main>
+      <main className="py-4 md:py-6">
         <StateInformation />
         <Board
           onUpdatePopupRemoveTodoItemState={handleOpenPopupRemoveTodoItem}

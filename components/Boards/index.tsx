@@ -1,5 +1,3 @@
-'use client';
-
 import { useBoardStore } from '@/store/BoardStore';
 import { useEffect, useState } from 'react';
 import {
@@ -7,11 +5,13 @@ import {
   Droppable,
   Draggable,
   DropResult,
+  resetServerContext,
 } from 'react-beautiful-dnd';
 import Column from './Column';
 import { DROPPABLE_TYPE } from '@/constants';
 import { PopupEditTodoCardState, PopupRemoveTodoCardState } from '@/lib/types';
 import SkeletonBoardLoading from '../LoadingIndicator/SkeletonBoardLoading';
+import { GetServerSideProps } from 'next';
 
 type BoardProps = {
   onUpdatePopupRemoveTodoItemState: ({
@@ -184,7 +184,7 @@ function Board({
             <div
               {...provided.droppableProps}
               ref={provided.innerRef}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-container padding-container"
+              className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 lg:gap-6 max-container padding-container"
             >
               {/* {provided.placeholder} */}
               {Array.from(board.columns.entries()).map(
@@ -212,3 +212,10 @@ function Board({
 }
 
 export default Board;
+
+// INFO: Adding this GSSP to avoid SSR issue on React Beautiful DND
+export const getServerSideProps: GetServerSideProps = async ({ query }) => {
+  resetServerContext(); // <-- CALL RESET SERVER CONTEXT, SERVER SIDE
+
+  return { props: { data: [] } };
+};

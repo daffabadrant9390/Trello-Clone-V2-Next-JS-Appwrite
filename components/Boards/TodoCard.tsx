@@ -98,7 +98,7 @@ const TodoCard = ({
                 todoId: todoItemId,
                 todoTitle: title || '',
                 columnId: id,
-                todoImage: todoItemImage || ({} as Image),
+                todoImage: todoItemImage,
                 todoImageUrl: imageUrl || '',
                 todoCreatedAt: todoItemCreatedAt || '',
               });
